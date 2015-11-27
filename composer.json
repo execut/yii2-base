@@ -11,8 +11,9 @@
       "name": "eXeCUT"
     }
   ],
+  "minimum-stability": "stable",
   "require": {
-    "yiisoft/yii2-jui": "*"
+    "yiisoft/yii2-jui": "@dev"
   },
   "autoload": {
     "psr-4": {
