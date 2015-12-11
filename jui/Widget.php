@@ -1,6 +1,7 @@
 <?php
 namespace execut\yii\jui;
 use yii\helpers\Html;
+use yii\helpers\Inflector;
 
 class Widget extends \yii\jui\Widget {
     protected function registerWidget($name = null, $id = null)
@@ -20,6 +21,13 @@ class Widget extends \yii\jui\Widget {
 
     protected function _beginContainer() {
         $options = $this->options;
+
+        if (empty($options['class'])) {
+            $parts = explode('\\', get_class($this));
+            $cssClass = Inflector::camel2id($parts[count($parts) - 1]);
+            Html::addCssClass($options, $cssClass);
+        }
+
         return Html::beginTag('div', $options);
     }
 
