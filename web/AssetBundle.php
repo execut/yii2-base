@@ -11,8 +11,14 @@ class AssetBundle extends \yii\web\AssetBundle {
         $fileName = $parts[count($parts) - 1];
         $parts = array_splice($parts, 0, count($parts) - 1);
         $this->basePath = '@' . implode('/', $parts);
-        $this->sourcePath = $this->basePath . '/assets';
-        $src = \yii::getAlias($this->sourcePath);
+        $sourcePath = $this->basePath . '/assets';
+        $src = \yii::getAlias($sourcePath);
+        if (!file_exists($src)) {
+            return;
+        }
+
+        $this->sourcePath = $sourcePath;
+
         $jsFile = $fileName . '.js';
         if ($this->ignoreFileExists || $this->_fileExists($jsFile)) {
             if (empty($this->js)) {
