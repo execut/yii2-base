@@ -1,11 +1,29 @@
 <?php
 namespace execut\yii\web;
 use yii\base\Widget;
+use yii\console\Application;
 
 class AssetBundle extends \yii\web\AssetBundle {
     public $ignoreFileExists = false;
     public $isDebug = false;
+    protected $jsIsSet = false;
+    protected $cssIsSet = false;
+    public function __construct($config = []) {
+        if (array_key_exists('js', $config)) {
+            $this->jsIsSet = true;
+        }
+
+        if (array_key_exists('css', $config)) {
+            $this->cssIsSet = true;
+        }
+
+        parent::__construct($config);
+    }
     public function configureFromClass() {
+        if ($this->jsIsSet && $this->cssIsSet) {
+            return;
+        }
+
         $class = str_replace('Asset', '', get_class($this));
         $parts = explode('\\', $class);
         $fileName = $parts[count($parts) - 1];
