@@ -23,8 +23,7 @@ class Widget extends \yii\jui\Widget {
         $options = $this->options;
 
         if (empty($options['class'])) {
-            $parts = explode('\\', get_class($this));
-            $cssClass = Inflector::camel2id($parts[count($parts) - 1]);
+            $cssClass = $this->getCssClass();
             Html::addCssClass($options, $cssClass);
         }
 
@@ -52,5 +51,15 @@ class Widget extends \yii\jui\Widget {
         if (class_exists($bundleClass)) {
             $bundleClass::register($this->view);
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCssClass()
+    {
+        $parts = explode('\\', get_class($this));
+        $cssClass = Inflector::camel2id($parts[count($parts) - 1]);
+        return $cssClass;
     }
 } 
