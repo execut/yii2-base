@@ -28,10 +28,13 @@ class AssetBundle extends \yii\web\AssetBundle {
         $parts = explode('\\', $class);
         $fileName = $parts[count($parts) - 1];
         $parts = array_splice($parts, 0, count($parts) - 1);
-        $this->basePath = '@' . implode('/', $parts);
+        if ($this->basePath === null) {
+            $this->basePath = '@' . implode('/', $parts);
+        }
+
         $sourcePath = $this->basePath . '/assets';
         $src = \yii::getAlias($sourcePath);
-        if (!file_exists($src)) {
+        if (!file_exists($src) && !$this->ignoreFileExists) {
             return;
         }
 
