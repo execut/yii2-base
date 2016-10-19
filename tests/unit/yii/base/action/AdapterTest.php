@@ -15,20 +15,29 @@ use yii\web\Response;
 
 class AdapterTest extends TestCase
 {
-    public function testRender()
-    {
+    public function testRender() {
         $adapter = $this->getMockForAbstractClass(Adapter::className());
-        $adapter->expects($this->once())->method('_run')->will($this->returnValue(''));
+        $response = new \execut\yii\base\action\Response();
+        $adapter->expects($this->once())->method('_run')->will($this->returnValue($response));
 
-        $this->assertEquals('', $adapter->run());
+        $this->assertEquals($response, $adapter->run());
+        $this->assertEquals($response, $adapter->response);
     }
 
     public function testWithView() {
         $adapter = $this->getMockForAbstractClass(Adapter::className());
-        $adapter->expects($this->once())->method('_run')->will($this->returnValue(['testProperty' => 'testValue']));
+        $response = new \execut\yii\base\action\Response([
+            'content' => [
+                'testProperty' => 'testValue',
+            ],
+        ]);
+
+        $adapter->expects($this->once())->method('_run')->will($this->returnValue($response));
         $view = new AdapterTestView();
         $adapter->view = $view;
-        $this->assertEquals('run result', $adapter->run());
+        $result = $adapter->run();
+        $this->assertInstanceOf(\execut\yii\base\action\Response::className(), $result);
+        $this->assertEquals('run result', $result->content);
         $this->assertEquals('testValue', $view->testProperty);
     }
 
@@ -90,12 +99,28 @@ class AdapterTest extends TestCase
     public function testRenderWithResponse() {
         $adapter = $this->getMockForAbstractClass(Adapter::className());
         $adapter->method('_run')->will($this->returnCallback(function () use ($adapter) {
-            return new Response();
+            return new \execut\yii\base\action\Response([
+                'content' => new Response(),
+            ]);
         }));
         $adapter->setView($this->getMockForAbstractClass(ViewRenderer::className()));
 
-        $this->assertInstanceOf(Response::className(), $adapter->run());
+        $this->assertInstanceOf(Response::className(), $adapter->run()->content);
     }
+
+//    public function testRenderWithViewString() {
+//        $adapter = $this->getMockForAbstractClass(Adapter::className());
+//        $adapter->method('_run')->will($this->returnCallback(function () use ($adapter) {
+//            return new \execut\yii\base\action\Response([
+//                'content' => [
+//                    'test' => 'test',
+//                ],
+//            ]);
+//        }));
+//        $adapter->setView('test');
+//
+//        $this->assertInstanceOf(Response::className(), $adapter->run()->content);
+//    }
 }
 
 class AdapterTestView extends ViewRenderer {

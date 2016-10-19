@@ -43,8 +43,8 @@ class DeleteTest extends TestCase
 
         $response = $action->run();
 
-        $this->assertEquals('test', $response->getHeaders()->get('Location'));
-        $this->assertInstanceOf(Response::className(), $response);
+        $this->assertInstanceOf(Response::className(), $response->content);
+        $this->assertEquals('test', $response->content->getHeaders()->get('Location'));
 
         $model = $action->model;
         $this->assertTrue($model->isDeleteCalled);
@@ -52,7 +52,7 @@ class DeleteTest extends TestCase
 
         $this->assertEquals([
             'kv-detail-success' => 'Record ' . $model . ' deleted',
-        ], $action->flashes);
+        ], $response->flashes);
     }
 }
 

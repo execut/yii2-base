@@ -8,6 +8,7 @@
 namespace execut\yii\base\action\adapter;
 use execut\TestCase;
 use yii\db\ActiveRecord;
+use yii\web\Response;
 use yii\web\UploadedFile;
 
 class FileTest extends TestCase
@@ -42,7 +43,8 @@ class FileTest extends TestCase
         $headers = \yii::$app->response->headers;
         $this->assertEquals('attachment; filename="test.txt"', $headers->get('content-disposition'));
         $this->assertEquals('text/plain', $headers->get('content-type'));
-        $this->assertEquals('test', $result);
+        $this->assertEquals(Response::FORMAT_RAW, $result->format);
+        $this->assertEquals('test', $result->content);
     }
 }
 

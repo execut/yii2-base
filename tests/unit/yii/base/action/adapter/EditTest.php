@@ -18,7 +18,8 @@ class EditTest extends TestCase
         $action = $this->getMockBuilder(Edit::className())->setMethods(['getDefaultViewRendererConfig'])->getMock();
         $action->method('getDefaultViewRendererConfig')->willReturn([]);
         $action->modelClass = TestModel::className();
-        $vars = $action->run();
+        $response = $action->run();
+        $vars = $response->content;
         $this->assertArrayHasKey('model', $vars);
         $this->assertArrayHasKey('mode', $vars);
         $this->assertInstanceOf(TestModel::className(), $vars['model']);
@@ -26,7 +27,8 @@ class EditTest extends TestCase
     }
 
     public function testCreateNewRecord() {
-        $action = new Edit();
+        $action = $this->getMockBuilder(Edit::className())->setMethods(['getDefaultViewRendererConfig'])->getMock();
+        $action->method('getDefaultViewRendererConfig')->willReturn([]);
         $action->modelClass = TestModel::className();
         $action->setActionParams([
             'controller' => 'test',
@@ -35,19 +37,19 @@ class EditTest extends TestCase
             ]
         ]);
         $response = $action->run();
-        $this->assertInstanceOf(Response::className(), $response);
+        $this->assertInstanceOf(Response::className(), $response->content);
 
         $model = $action->model;
         $this->assertTrue($model->saveIsCalled, 'Check what save is called');
 
         $this->assertEquals([
             'kv-detail-success' => 'Record ' . $model . ' updated',
-        ], $action->flashes);
+        ], $response->flashes);
 
         $this->assertEquals(Url::to([
             $action->actionParams->uniqueId,
             'id' => $model->id,
-        ], true), $response->getHeaders()->get('Location'));
+        ], true), $response->content->getHeaders()->get('Location'));
     }
 
     public function testEdit() {
@@ -59,9 +61,13 @@ class EditTest extends TestCase
                 'id' => 1,
             ]
         ]);
+//        $action->filesAttributes = [
+//            'content' => 'contentFile',
+//        ];
         $action->run();
         $model = $action->model;
         $this->assertTrue($model->findIsCalled);
+//        $this->assertEquals(['savedAttribute', 'addinalAttribute'], $model->selectAttributes);
     }
 
     public function testWithAdditionalAttributes() {
@@ -79,6 +85,7 @@ class EditTest extends TestCase
             ]
         ]);
         $response = $action->run();
+        $response = $response->content;
         $model = $action->model;
         $this->assertEquals('testValue', $model->addinalAttribute);
         $this->assertEquals(Url::to([
@@ -108,12 +115,28 @@ class TestModel extends ActiveRecord {
     public $id = 1;
     public $savedAttribute = null;
     public $addinalAttribute = null;
+    public $content = null;
     public $isNewRecord = false;
     public function rules() {
         return [
             [['savedAttribute'], 'required'],
-            [['addinalAttribute'], 'safe'],
+            [['content', 'addinalAttribute'], 'safe'],
         ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'savedAttribute',
+            'content',
+            'addinalAttribute',
+        ];
+    }
+
+    public $selectAttributes = null;
+    public function select($attributes) {
+        $this->selectAttributes = $attributes;
+        return $this;
     }
 
     public function formName()
@@ -122,11 +145,14 @@ class TestModel extends ActiveRecord {
     }
 
     public $findIsCalled = false;
-    public static function findByPk() {
+    public static function find() {
         $result = new self;
-        $result->findIsCalled = true;
-
         return $result;
+    }
+
+    public function one() {
+        $this->findIsCalled = true;
+        return $this;
     }
 
     public $where = null;

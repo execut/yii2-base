@@ -9,8 +9,10 @@ namespace execut\yii\base\action\adapter;
 
 
 use execut\TestCase;
+use yii\base\Event;
 use yii\base\Model;
 use yii\data\ArrayDataProvider;
+use yii\web\Response;
 
 class FormTest extends TestCase
 {
@@ -37,8 +39,7 @@ class FormTest extends TestCase
         $this->assertEquals('post', $adapter->getData());
     }
 
-    public function testOutputVars()
-    {
+    public function testOutputVars() {
         $filter = new GridViewTestFilter;
 
         $formValue = [
@@ -53,9 +54,10 @@ class FormTest extends TestCase
             'get' => $formValue,
         ]);
         $adapter->model = $filter;
+        $response = $adapter->run();
         $this->assertEquals([
             'model' => $filter,
-        ], $adapter->run());
+        ], $response->content);
     }
 
     public function testAjaxValidate() {
@@ -71,12 +73,43 @@ class FormTest extends TestCase
             ],
         ]);
 
-        $result = $adapter->run();
+        $response = $adapter->run();
         $this->assertEquals([
             'gridviewtestfilter-attribute' => [
                 'Attribute cannot be blank.'
             ]
-        ], $result);
+        ], $response->content);
+        $this->assertEquals(Response::FORMAT_JSON, $response->format);
+
+        $adapter->actionParams->get = [
+            $model->formName() => [
+                'attribute' => 'value'
+            ],
+        ];
+
+        $response = $adapter->run();
+        $this->assertTrue($response->content);
+    }
+
+    protected $event = null;
+    public function testAfterValidate() {
+        $model = new FormTestFilter();
+        $adapter = new Form;
+        $adapter->model = $model;
+        $adapter->setActionParams([
+            'isAjax' => true,
+            'get' => [
+                $model->formName() => [
+                    'attribute' => 'test',
+                ],
+            ],
+        ]);
+        $this->event = null;
+        $adapter->on('afterValidate', function ($event) {
+            $this->event = $event;
+        });
+        $adapter->run();
+        $this->assertInstanceOf(Event::className(), $this->event);
     }
 }
 

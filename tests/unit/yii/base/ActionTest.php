@@ -33,9 +33,11 @@ class ActionTest extends TestCase
         $adapter = $this->getMockForAbstractClass(Adapter::className());
         $action->controller->expects($this->once())->method('render')->with('test', ['test'])->will($this->returnValue('test'));
 
-        $adapter->expects($this->exactly(2))->method('_run')->will($this->returnCallback(function () use ($adapter) {
+        $response = new \execut\yii\base\action\Response();
+        $adapter->expects($this->exactly(2))->method('_run')->will($this->returnCallback(function () use ($adapter, $response) {
             $this->assertInstanceOf(Params::className(), $adapter->actionParams);
-            return ['test'];
+            $response->content = ['test'];
+            return $response;
         }));
 
         $action->on('beforeRun', function () {
@@ -49,13 +51,18 @@ class ActionTest extends TestCase
         });
         $action->adapter = $adapter;
         $action->view = 'test';
-        $this->assertEquals('test', $action->run());
+
+        $content = $action->run();
+        $this->assertEquals('test', $content);
         $this->assertTrue($this->beforeRunTriggered);
         $this->assertTrue($this->afterRunTriggered);
         $this->assertTrue($this->beforeRenderTriggered);
 
-        \yii::$app->response->format = Response::FORMAT_JSON;
-        $this->assertEquals(['test'], $action->run());
+        $response->format = Response::FORMAT_JSON;
+        $content = $action->run();
+        $this->assertEquals($response, $action->response);
+        $this->assertEquals(Response::FORMAT_JSON, \yii::$app->response->format);
+        $this->assertEquals(['test'], $content);
     }
 
     public function testGetAdapter() {
@@ -71,9 +78,12 @@ class ActionTest extends TestCase
     public function testAddFlashes() {
         $action = $this->getAction();
 
+        $response = new \execut\yii\base\action\Response([
+            'flashes' => ['test'],
+        ]);
         $adapter = $this->getMockForAbstractClass(Adapter::className());
-        $adapter->method('_run')->will($this->returnCallback(function () use ($adapter) {
-            $adapter->flashes[] = 'test';
+        $adapter->method('_run')->will($this->returnCallback(function () use ($response) {
+            return $response;
         }));
         $action->adapter = $adapter;
 
@@ -90,7 +100,9 @@ class ActionTest extends TestCase
 
         $adapter = $this->getMockForAbstractClass(Adapter::className());
         $adapter->method('_run')->will($this->returnCallback(function () use ($adapter) {
-            return new Response();
+            return new \execut\yii\base\action\Response([
+                'content' => new Response()
+            ]);
         }));
         $action->view = 'test';
         $action->adapter = $adapter;

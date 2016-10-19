@@ -14,7 +14,7 @@ use yii\data\ArrayDataProvider;
 
 class GridViewTest extends TestCase
 {
-    public function testGetDataProvider()
+    public function testRun()
     {
         $dataProvider = new ArrayDataProvider();
         $dataProvider->models = [
@@ -33,16 +33,19 @@ class GridViewTest extends TestCase
             ],
         ];
 
-        $adapter = new GridView();
+        $adapter = $this->getMockBuilder(GridView::className())->setMethods(['getDefaultViewRendererConfig'])->getMock();
+        $adapter->method('getDefaultViewRendererConfig')->willReturn([]);
+
         $adapter->attributes = [];
         $adapter->setActionParams([
             'get' => $formValue,
         ]);
         $adapter->model = $filter;
+        $response = $adapter->run();
         $this->assertEquals([
             'filter' => $filter,
             'dataProvider' => $dataProvider,
-        ], $adapter->run());
+        ], $response->content);
 
         $adapter->actionParams->isAjax = true;
 
@@ -51,7 +54,7 @@ class GridViewTest extends TestCase
             'id',
             'text' => 'test_text'
         ];
-        $result = $adapter->run();
+        $response = $adapter->run();
         $this->assertEquals([
             'results' => [
                 [
@@ -59,7 +62,7 @@ class GridViewTest extends TestCase
                     'text' => 'test',
                 ]
             ]
-        ], $result);
+        ], $response->content);
     }
 }
 

@@ -1,9 +1,11 @@
 <?php
 namespace execut\yii\jui;
+use execut\yii\jui\widget\Renderer;
 use yii\helpers\Html;
 use yii\helpers\Inflector;
 
 class Widget extends \yii\jui\Widget {
+    public $isPjax = false;
     protected function registerWidget($name = null, $id = null)
     {
         if ($name === null) {
@@ -19,19 +21,34 @@ class Widget extends \yii\jui\Widget {
         return $this->_beginContainer() . $content . $this->_endContainer();
     }
 
+    /**
+     * @var Renderer
+     */
+    protected $renderer = null;
+    protected function getRenderer() {
+        if ($this->renderer === null) {
+            $this->renderer = new Renderer([
+                'widget' => $this,
+                'isPjax' => $this->isPjax,
+            ]);
+        }
+
+        return $this->renderer;
+    }
+
     protected function _beginContainer() {
         $options = $this->options;
 
         if (empty($options['class'])) {
             $cssClass = $this->getCssClass();
-            Html::addCssClass($options, $cssClass);
+            Html::addCssClass($this->options, $cssClass);
         }
 
-        return Html::beginTag('div', $options);
+        return $this->getRenderer()->beginContainer();
     }
 
     protected function _endContainer() {
-        return Html::endTag('div');
+        return $this->getRenderer()->endContainer();
     }
 
     protected function _getUnnamespacedClassName($className = null)
