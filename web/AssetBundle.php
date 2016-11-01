@@ -41,7 +41,12 @@ class AssetBundle extends \yii\web\AssetBundle {
         $this->sourcePath = $sourcePath;
 
         $jsFile = $fileName . '.js';
-        if ($this->ignoreFileExists || $this->_fileExists($jsFile)) {
+        $jsMinFile = $fileName . '.min.js';
+        if ($this->ignoreFileExists || ($this->_fileExists($jsFile))) {
+            if (!YII_DEBUG && $this->_fileExists($jsMinFile)) {
+                $jsFile = $jsMinFile;
+            }
+
             if (empty($this->js)) {
                 $this->js = [];
             }
