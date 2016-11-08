@@ -23,23 +23,23 @@ class Renderer extends Component
     public $isPjax = false;
     public function beginContainer() {
         $options = $this->widget->options;
+        $result = '';
         if ($this->isPjax) {
             ob_start();
             Pjax::begin([
-                'options' => $options,
+//                'options' => $options,
             ]);
-            $result = ob_get_clean();
-
-            return $result;
+            $result .= ob_get_clean();
         }
 
-        return Html::beginTag('div', $options);
+        return $result . Html::beginTag('div', $options);
     }
 
     public function endContainer() {
         if ($this->isPjax) {
             ob_start();
             Pjax::end();
+            echo Html::endTag('div');
             $result = ob_get_clean();
 
             return $result;
