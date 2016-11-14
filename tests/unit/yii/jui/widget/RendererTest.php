@@ -31,11 +31,16 @@ class RendererTest extends TestCase
     }
 
     public function testPjaxBegin() {
-        $widget = new Widget();
+        $widget = new Widget([
+            'id' => 'test',
+            'pjaxOptions' => [
+                'id' => 'pjaxContainer'
+            ],
+        ]);
         $renderer = new Renderer([
             'widget' => $widget,
             'isPjax' => true,
         ]);
-        $this->assertEquals('<div id="' . $widget->id . '" data-pjax-container="" data-pjax-push-state data-pjax-timeout="1000">', $renderer->beginContainer());
+        $this->assertEquals('<div id="pjaxContainer" data-pjax-container="" data-pjax-push-state data-pjax-timeout="1000"><div id="test">', $renderer->beginContainer());
     }
 }

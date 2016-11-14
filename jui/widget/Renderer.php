@@ -27,7 +27,7 @@ class Renderer extends Component
         if ($this->isPjax) {
             ob_start();
             Pjax::begin([
-//                'options' => $options,
+                'options' => $this->widget->pjaxOptions,
             ]);
             $result .= ob_get_clean();
         }
