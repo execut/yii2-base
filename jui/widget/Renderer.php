@@ -9,7 +9,7 @@
 namespace execut\yii\jui\widget;
 
 
-use execut\yii\helpers\Html;
+use yii\helpers\Html;
 use execut\yii\jui\Widget;
 use yii\base\Component;
 use yii\widgets\Pjax;
