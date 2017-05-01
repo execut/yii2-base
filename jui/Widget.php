@@ -6,7 +6,6 @@ use yii\helpers\Inflector;
 
 class Widget extends \yii\jui\Widget {
     public $isPjax = false;
-    public $pjaxId = null;
     public $pjaxOptions = [];
     protected function registerWidget($name = null, $id = null)
     {
