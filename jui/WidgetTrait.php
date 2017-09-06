@@ -90,7 +90,7 @@ trait WidgetTrait
     /**
      * @return string
      */
-    protected function getBundleClass(): string
+    protected function getBundleClass()
     {
         return $this->getHelper()->getBundleClass();
     }

@@ -54,7 +54,7 @@ class Helper extends Object
     /**
      * @return string
      */
-    protected function getWidgetClass(): string
+    protected function getWidgetClass()
     {
         $className = get_class($this->widget);
         return $className;
