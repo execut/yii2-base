@@ -39,7 +39,7 @@ class HelperTest extends TestCase
     /**
      * @return Helper
      */
-    protected function createHelper(): Helper
+    protected function createHelper()
     {
         $widget = new HelperTestWidget();
         $helper = new Helper([
