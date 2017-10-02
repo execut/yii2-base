@@ -51,10 +51,8 @@ trait WidgetTrait
     protected function _beginContainer() {
         $options = $this->options;
 
-        if (empty($options['class'])) {
-            $cssClass = $this->getDefaultCssClass();
-            Html::addCssClass($this->options, $cssClass);
-        }
+        $cssClass = $this->getDefaultCssClass();
+        Html::addCssClass($this->options, $cssClass);
 
         return $this->getRenderer()->beginContainer();
     }

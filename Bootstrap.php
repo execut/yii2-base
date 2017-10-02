@@ -30,6 +30,8 @@ class Bootstrap extends Object implements BootstrapInterface
     public function setDepends($depends) {
         $this->depends = $depends;
     }
+
+    protected static $boostrapped = [];
     public function bootstrap($app)
     {
         $bootstraps = [];
@@ -57,6 +59,11 @@ class Bootstrap extends Object implements BootstrapInterface
             if (is_string($bootstrap)) {
                 $app->getModule($bootstrap);
             } else {
+                if (in_array($bootstrap['class'], self::$boostrapped)) {
+                    continue;
+                }
+
+                self::$boostrapped[] = $bootstrap['class'];
                 $bootstrap = \yii::createObject($bootstrap);
                 $bootstrap->bootstrap($app);
             }
