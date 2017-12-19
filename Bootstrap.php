@@ -5,11 +5,11 @@
 namespace execut\yii;
 
 
+use yii\base\BaseObject;
 use yii\base\BootstrapInterface;
-use yii\base\Object;
 use yii\helpers\ArrayHelper;
 
-class Bootstrap extends Object implements BootstrapInterface
+class Bootstrap extends BaseObject implements BootstrapInterface
 {
     protected $_defaultDepends = [];
 
@@ -28,14 +28,14 @@ class Bootstrap extends Object implements BootstrapInterface
     }
 
     public function setDepends($depends) {
-        $this->depends = $depends;
+        $this->_depends = $depends;
     }
 
     protected static $boostrapped = [];
     public function bootstrap($app)
     {
         $bootstraps = [];
-        foreach ($this->depends as $key => $depends) {
+        foreach ($this->getDepends() as $key => $depends) {
             foreach ($depends as $name => $depend) {
                 switch ($key) {
                     case 'bootstrap':
