@@ -9,10 +9,10 @@
 namespace execut\yii\jui\widget;
 
 
-use yii\base\BaseObject;
+use yii\base\Object;
 use yii\helpers\Inflector;
 
-class Helper extends BaseObject
+class Helper extends Object
 {
     public $widget = null;
     public function getBundleClass() {
