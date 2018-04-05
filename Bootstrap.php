@@ -57,7 +57,10 @@ class Bootstrap extends BaseObject implements BootstrapInterface
 
         foreach ($bootstraps as $bootstrap) {
             if (is_string($bootstrap)) {
-                $app->getModule($bootstrap);
+                $module = $app->getModule($bootstrap);
+                if ($module instanceof BootstrapInterface) {
+                    $module->bootstrap($app);
+                }
             } else {
                 if (in_array($bootstrap['class'], self::$boostrapped)) {
                     continue;

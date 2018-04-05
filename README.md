@@ -1,7 +1,81 @@
 # yii2-base
 My base classes for yii2
 
-# execut\yii\jui\Widget
+# Bootstrap system
+## execut\yii\Bootstrap
+
+Этот класс необходим для возможности иерархического запуска компонентов для различных модулей. Допустим есть модуль
+users, для своей работы он требует [навигацию execut/yii2-navigation](https://github.com/execut/yii2-navigation) и
+модуль CRUD [execut/yii2-crud](https://github.com/execut/yii2-crud). Их необходимо запустить до запуска основного
+модуля users. При этом самим этим компонентам нужно запускать ещё комоненты для своей работы. Например,
+[execut/yii2-crud](https://github.com/execut/yii2-crud) требует пакет [execut/yii2-actions](https://github.com/execut/yii2-actions).
+С помощью execut\yii\Bootstrap компоненты рекурсивно сами подцепят себе всё необходимое и не нужно об этом заботиться.
+Нам-же нужно запустить модуль users и указать от запуска каких компонентов он зависит. Для этого необходимо реализовать
+потомка класса \execut\yii\Bootstrap, объявив в нём все зависимости модуля users и саму настройку модуля users:
+```php
+<?php
+namespace execut\users;
+
+
+class Bootstrap extends \execut\yii\Bootstrap
+{
+    public function getDefaultDepends()
+    {
+        return [
+            'bootstrap' => [
+                'yii2-navigation' => [
+                    'class' => \execut\navigation\Bootstrap::class,
+                ],
+                'yii2-crud' => [
+                    'class' => \execut\crud\Bootstrap::class,
+                ],
+            ],
+            'modules' => [
+                'users' => [
+                    'class' => Module::class,
+                ],
+            ],
+        ];
+    }
+    
+    public function bootstrap($app)
+    {
+        parent::bootstrap($app); // Здесь можно задать код для бутстрапа модуля. Родителя вызвать обязательно
+    }
+}
+```
+
+После этого добавляем в конфигурацию приложения запуск модуля users. Прелесть бутрапа в том, что сам модуль как и все
+необходимые компоненты указывать в конфигурации приложения не нужно, поскольку это всё и так объявлено в бутстрапе:
+```php
+...
+'bootstrap' => [
+    'users' => [
+        'class' => \execut\users\Bootsrap::class,
+    ],
+],
+...
+```
+Если ещё необходимо задать модулю параметры окружения приложения, то указываем их через директиву depends в конфиге:
+```php
+...
+'bootstrap' => [
+    'users' => [
+        'class' => \execut\users\Bootsrap::class,
+        'depends' => [
+            'modules' => [
+                'users' => [
+                    'defaultRoute' => '/users'
+                ],
+            ],
+        ],
+    ],
+],
+...
+```
+
+# Widgets system
+## execut\yii\jui\Widget
 This class provides the ability to simplify create jquery widgets with assets files if you want. To create a widget, you must create files in follow structure:
 
 - CustomWidget.php
