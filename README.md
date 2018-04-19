@@ -130,10 +130,10 @@ class CustomWidgetAsset extends \execut\yii\web\AssetBundle
 
 If you want javascript functional, create jquery widget file assets\CustomWidget.js:
 ```javascript
-(function(){
+(function () {
     $.widget("customNamespace.CustomWidget", {
-        form : null,
         _create: function () {
+            var t = this;
             t._initElements();
             t._initEvents();
         },
