@@ -62,7 +62,12 @@ class Bootstrap extends BaseObject implements BootstrapInterface
                     $module->bootstrap($app);
                 }
             } else {
-                if (in_array($bootstrap['class'], self::$boostrapped)) {
+                $bootstrapKey = $bootstrap['class'];
+                if (array_key_exists('moduleId', $bootstrap)) {
+                    $bootstrapKey .= '-' . $bootstrap['moduleId'];
+                }
+
+                if (in_array($bootstrapKey, self::$boostrapped)) {
                     continue;
                 }
 
