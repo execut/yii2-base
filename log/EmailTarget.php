@@ -26,18 +26,34 @@ class EmailTarget extends \yii\log\EmailTarget
             return true;
         }
 
+        $cacheKey = __CLASS__ . '-' . $this->getExceptionId();
         try {
             $cache = \yii::$app->cache;
-            $exportedTime = $cache->get(__CLASS__);
+            $exportedTime = $cache->get($cacheKey);
             $now = time();
             if ($exportedTime !== false && ($now - $exportedTime) < $this->secondsPeriod) {
                 return false;
             }
 
-            $cache->set(__CLASS__, $now);
+            $cache->set($cacheKey, $now);
         } catch (\Exception $e) {
         }
 
         return true;
+    }
+
+    protected function getExceptionId() {
+        foreach ($this->messages as $message) {
+            if (!empty($message[0]) && $message[0] instanceof \Exception) {
+                /**
+                 * @var \Exception $e ;
+                 */
+                $e = $message[0];
+
+                return '-' . $e->getFile() . '-' . $e->getLine() . '-' . $e->getMessage();
+            } else {
+                return '-unknown';
+            }
+        }
     }
 }
