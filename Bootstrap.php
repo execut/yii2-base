@@ -5,13 +5,16 @@
 namespace execut\yii;
 
 
+use yii\base\Application;
 use yii\base\BaseObject;
 use yii\base\BootstrapInterface;
 use yii\helpers\ArrayHelper;
+use yii\i18n\PhpMessageSource;
 
 class Bootstrap extends BaseObject implements BootstrapInterface
 {
     protected $_defaultDepends = [];
+    protected $isBootstrapI18n = false;
 
     public function getDefaultDepends() {
         return $this->_defaultDepends;
@@ -32,8 +35,17 @@ class Bootstrap extends BaseObject implements BootstrapInterface
     }
 
     protected static $boostrapped = [];
+
+    /**
+     * Bootstrap method to be called during application bootstrap stage.
+     * @param Application $app the application currently running
+     */
     public function bootstrap($app)
     {
+        if ($this->isBootstrapI18n) {
+            $this->bootstrapI18n($app);
+        }
+
         $bootstraps = [];
         foreach ($this->getDepends() as $key => $depends) {
             foreach ($depends as $name => $depend) {
@@ -76,5 +88,22 @@ class Bootstrap extends BaseObject implements BootstrapInterface
                 $bootstrap->bootstrap($app);
             }
         }
+    }
+
+    public function bootstrapI18n($app) {
+        $className = static::class;
+        $reflector = new \ReflectionClass($className);
+        $fileName = $reflector->getFileName();
+        $fileName = dirname(dirname($fileName));
+        $fileName = pathinfo($fileName, PATHINFO_BASENAME);
+        $moduleName = explode('\\', $className)[1];
+        $app->i18n->translations['execut/' . $moduleName] = [
+            'class' => PhpMessageSource::class,
+            'basePath' => '@vendor/execut/' . $fileName . '/messages',
+            'sourceLanguage' => 'en-US',
+            'fileMap' => [
+                'execut/' . $moduleName => $moduleName . '.php',
+            ],
+        ];
     }
 }
