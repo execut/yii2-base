@@ -94,7 +94,16 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $className = static::class;
         $reflector = new \ReflectionClass($className);
         $fileName = $reflector->getFileName();
-        $fileName = dirname(dirname($fileName));
+        $level = 0;
+        while (pathinfo(dirname($fileName), PATHINFO_BASENAME) !== 'execut') {
+            if ($level > 2) {
+                return;
+            }
+
+            $fileName = dirname($fileName);
+            $level++;
+        }
+
         $fileName = pathinfo($fileName, PATHINFO_BASENAME);
         $moduleName = explode('\\', $className)[1];
         $app->i18n->translations['execut/' . $moduleName] = [
