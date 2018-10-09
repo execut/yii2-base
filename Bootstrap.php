@@ -15,6 +15,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
 {
     protected $_defaultDepends = [];
     protected $isBootstrapI18n = false;
+    public $vendorNamespace = 'execut';
 
     public function getDefaultDepends() {
         return $this->_defaultDepends;
@@ -95,7 +96,8 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $reflector = new \ReflectionClass($className);
         $fileName = $reflector->getFileName();
         $level = 0;
-        while (pathinfo(dirname($fileName), PATHINFO_BASENAME) !== 'execut') {
+        $baseFolder = $this->vendorNamespace;
+        while (pathinfo(dirname($fileName), PATHINFO_BASENAME) !== $baseFolder) {
             if ($level > 2) {
                 return;
             }
@@ -108,7 +110,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $moduleName = explode('\\', $className)[1];
         $app->i18n->translations['execut/' . $moduleName] = [
             'class' => PhpMessageSource::class,
-            'basePath' => '@vendor/execut/' . $fileName . '/messages',
+            'basePath' => '@vendor/' . $baseFolder . '/' . $fileName . '/messages',
             'sourceLanguage' => 'en-US',
             'fileMap' => [
                 'execut/' . $moduleName => $moduleName . '.php',
