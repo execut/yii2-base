@@ -16,6 +16,19 @@ class Bootstrap extends BaseObject implements BootstrapInterface
     protected $_defaultDepends = [];
     protected $isBootstrapI18n = false;
     public $vendorNamespace = 'execut';
+    protected const CORE_COMPONENTS = [
+        'user',
+        'log',
+        'view',
+        'formatter',
+        'i18n',
+        'mailer',
+        'urlManager',
+        'assetManager',
+        'request',
+        'errorHandler',
+        'security',
+    ];
 
     public function getDefaultDepends() {
         return $this->_defaultDepends;
@@ -36,6 +49,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
     }
 
     protected static $boostrapped = [];
+    protected static $coreComponents = [];
 
     /**
      * Bootstrap method to be called during application bootstrap stage.
@@ -52,7 +66,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
             foreach ($depends as $name => $depend) {
                 switch ($key) {
                     case 'bootstrap':
-                        $bootstraps[] = $depend;
+                        $bootstraps[$name] = $depend;
                     break;
                     case 'modules':
                         if (!$app->hasModule($name)) {
@@ -60,7 +74,15 @@ class Bootstrap extends BaseObject implements BootstrapInterface
                         }
                     break;
                     case 'components':
-                        if (!$app->has($name)) {
+                        if (in_array($name, self::CORE_COMPONENTS) || !$app->has($name)) {
+                            if (in_array($name, self::CORE_COMPONENTS)) {
+                                if (!empty(self::$coreComponents[$name])) {
+                                    break;
+                                }
+
+                                self::$coreComponents[$name] = true;
+                            }
+
                             $app->set($name, $depend);
                         }
                     break;
@@ -68,12 +90,19 @@ class Bootstrap extends BaseObject implements BootstrapInterface
             }
         }
 
-        foreach ($bootstraps as $bootstrap) {
+        foreach ($bootstraps as $bootstrapKey => $bootstrap) {
             if (is_string($bootstrap)) {
                 $module = $app->getModule($bootstrap);
                 if ($module instanceof BootstrapInterface) {
                     $module->bootstrap($app);
                 }
+            } else if (is_callable($bootstrap)) {
+                if (in_array($bootstrapKey, self::$boostrapped)) {
+                    continue;
+                }
+
+                $bootstrap();
+                self::$boostrapped[] = $key;
             } else {
                 $bootstrapKey = $bootstrap['class'];
                 if (array_key_exists('moduleId', $bootstrap)) {
