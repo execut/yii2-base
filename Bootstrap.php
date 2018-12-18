@@ -18,6 +18,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
     public $vendorNamespace = 'execut';
     protected const CORE_COMPONENTS = [
         'user',
+        'session',
         'log',
         'view',
         'formatter',
