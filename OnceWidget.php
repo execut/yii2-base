@@ -49,4 +49,8 @@ class OnceWidget extends Widget
 
         return $result;
     }
+
+    public static function reset() {
+        self::$alreadyRenderedWidgets = [];
+    }
 }
