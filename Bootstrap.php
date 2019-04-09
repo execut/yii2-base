@@ -122,11 +122,26 @@ class Bootstrap extends BaseObject implements BootstrapInterface
     }
 
     public function bootstrapI18n($app) {
+        $baseFolder = $this->vendorNamespace;
+        $fileName = $this->getModuleFolderName();
+        $className = static::class;
+        $moduleName = explode('\\', $className)[1];
+        $app->i18n->translations['execut/' . $moduleName] = [
+            'class' => PhpMessageSource::class,
+            'basePath' => '@vendor/' . $baseFolder . '/' . $fileName . '/messages',
+            'sourceLanguage' => 'en-US',
+            'fileMap' => [
+                'execut/' . $moduleName => $moduleName . '.php',
+            ],
+        ];
+    }
+
+    protected function getModuleFolderName() {
+        $baseFolder = $this->vendorNamespace;
         $className = static::class;
         $reflector = new \ReflectionClass($className);
         $fileName = $reflector->getFileName();
         $level = 0;
-        $baseFolder = $this->vendorNamespace;
         while (pathinfo(dirname($fileName), PATHINFO_BASENAME) !== $baseFolder) {
             if ($level > 2) {
                 return;
@@ -137,14 +152,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         }
 
         $fileName = pathinfo($fileName, PATHINFO_BASENAME);
-        $moduleName = explode('\\', $className)[1];
-        $app->i18n->translations['execut/' . $moduleName] = [
-            'class' => PhpMessageSource::class,
-            'basePath' => '@vendor/' . $baseFolder . '/' . $fileName . '/messages',
-            'sourceLanguage' => 'en-US',
-            'fileMap' => [
-                'execut/' . $moduleName => $moduleName . '.php',
-            ],
-        ];
+
+        return $fileName;
     }
 }
