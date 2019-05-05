@@ -8,6 +8,7 @@ namespace execut\yii;
 use yii\base\Application;
 use yii\base\BaseObject;
 use yii\base\BootstrapInterface;
+use yii\console\controllers\MigrateController;
 use yii\helpers\ArrayHelper;
 use yii\i18n\PhpMessageSource;
 
@@ -119,13 +120,41 @@ class Bootstrap extends BaseObject implements BootstrapInterface
                 $bootstrap->bootstrap($app);
             }
         }
+
+        $this->bootstrapMigrations($app);
+    }
+
+    protected function bootstrapMigrations($app) {
+        if ($app instanceof \yii\console\Application) {
+            $controllerMap = $app->controllerMap;
+            if (empty($controllerMap['migrate'])) {
+                $controllerMap['migrate'] = [
+                    'class' => MigrateController::class,
+                    'templateFile' => '@vendor/execut/yii2-migration/views/template.php',
+                ];
+            }
+
+            if (empty($controllerMap['migrate']['migrationNamespaces'])) {
+                $controllerMap['migrate']['migrationNamespaces'] = [];
+            }
+
+            $newNamespace = $this->vendorNamespace . '\\' . $this->getModuleName() . '\\migrations';
+            $controllerMap['migrate']['migrationNamespaces'][] = $newNamespace;
+            $app->setAliases([
+                '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/execut/yii2-' . $this->getModuleName(),
+            ]);
+
+//            $newPath = '@vendor/' . $this->vendorNamespace . '/yii2-' . $this->getModuleName() . '/migrations';
+//            $controllerMap['migrate']['migrationPath'][] = $newPath;
+
+            $app->controllerMap = $controllerMap;
+        }
     }
 
     public function bootstrapI18n($app) {
         $baseFolder = $this->vendorNamespace;
         $fileName = $this->getModuleFolderName();
-        $className = static::class;
-        $moduleName = explode('\\', $className)[1];
+        $moduleName = $this->getModuleName();
         $app->i18n->translations['execut/' . $moduleName] = [
             'class' => PhpMessageSource::class,
             'basePath' => '@vendor/' . $baseFolder . '/' . $fileName . '/messages',
@@ -154,5 +183,15 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $fileName = pathinfo($fileName, PATHINFO_BASENAME);
 
         return $fileName;
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getModuleName()
+    {
+        $className = static::class;
+        $moduleName = explode('\\', $className)[1];
+        return $moduleName;
     }
 }
