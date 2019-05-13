@@ -19,6 +19,8 @@ class AssetBundle extends \yii\web\AssetBundle {
 
         parent::__construct($config);
     }
+
+
     public function configureFromClass() {
         if ($this->jsIsSet && $this->cssIsSet) {
             return;
@@ -29,7 +31,8 @@ class AssetBundle extends \yii\web\AssetBundle {
         $fileName = $parts[count($parts) - 1];
         $parts = array_splice($parts, 0, count($parts) - 1);
         if ($this->basePath === null) {
-            $this->basePath = '@' . implode('/', $parts);
+            $a = new \ReflectionClass(static::class);
+            $this->basePath = dirname($a->getFileName());
         }
 
         $sourcePath = $this->basePath . '/assets';
