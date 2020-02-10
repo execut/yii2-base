@@ -13,7 +13,7 @@ trait AppCacheTrait {
     protected function _initCache() {
         if ($this->_cache === null) {
             $this->_cache = \yii::$app->cache;
-            $this->_cache->gc();
+//            $this->_cache->gc();
         }
     }
 

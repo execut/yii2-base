@@ -11,7 +11,7 @@ namespace execut\yii;
 
 use yii\helpers\Json;
 
-define('CACHE_DEFAULT_VALUE', md5('asdasdasdasdas das das das das'));
+defined('CACHE_DEFAULT_VALUE') ? false : define('CACHE_DEFAULT_VALUE', md5('asdasdasdasdas das das das das'));
 trait CacheTrait {
     protected $_cache = null;
     protected static $_staticCache = null;
