@@ -138,11 +138,12 @@ class Bootstrap extends BaseObject implements BootstrapInterface
                 $controllerMap['migrate']['migrationNamespaces'] = [];
             }
 
-            $newNamespace = $this->vendorNamespace . '\\' . $this->getModuleName() . '\\migrations';
+            $newNamespace = $this->vendorNamespace . '\\' . str_replace('/', '\\', $this->getModuleName()) . '\\migrations';
             $controllerMap['migrate']['migrationNamespaces'][] = $newNamespace;
-            $app->setAliases([
-                '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/execut/yii2-' . $this->getModuleName(),
-            ]);
+            $aliases = [
+                '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/execut/' . $this->getModuleFolderName(),
+            ];
+            $app->setAliases($aliases);
 
 //            $newPath = '@vendor/' . $this->vendorNamespace . '/yii2-' . $this->getModuleName() . '/migrations';
 //            $controllerMap['migrate']['migrationPath'][] = $newPath;
@@ -155,7 +156,8 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $baseFolder = $this->vendorNamespace;
         $fileName = $this->getModuleFolderName();
         $moduleName = $this->getModuleName();
-        $app->i18n->translations['execut/' . $moduleName] = [
+        $i18n = $app->i18n;
+        $i18n->translations['execut/' . $moduleName] = [
             'class' => PhpMessageSource::class,
             'basePath' => '@vendor/' . $baseFolder . '/' . $fileName . '/messages',
             'sourceLanguage' => 'en-US',
