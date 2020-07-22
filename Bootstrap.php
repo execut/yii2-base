@@ -59,6 +59,7 @@ class Bootstrap extends BaseObject implements BootstrapInterface
      */
     public function bootstrap($app)
     {
+        $this->bootstrapAliases($app);
         if ($this->isBootstrapI18n) {
             $this->bootstrapI18n($app);
         }
@@ -140,10 +141,6 @@ class Bootstrap extends BaseObject implements BootstrapInterface
 
             $newNamespace = $this->vendorNamespace . '\\' . str_replace('/', '\\', $this->getModuleName()) . '\\migrations';
             $controllerMap['migrate']['migrationNamespaces'][] = $newNamespace;
-            $aliases = [
-                '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/execut/' . $this->getModuleFolderName(),
-            ];
-            $app->setAliases($aliases);
 
 //            $newPath = '@vendor/' . $this->vendorNamespace . '/yii2-' . $this->getModuleName() . '/migrations';
 //            $controllerMap['migrate']['migrationPath'][] = $newPath;
@@ -152,14 +149,13 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         }
     }
 
-    public function bootstrapI18n($app) {
-        $baseFolder = $this->vendorNamespace;
-        $fileName = $this->getModuleFolderName();
+    public function bootstrapI18n($app)
+    {
         $moduleName = $this->getModuleName();
         $i18n = $app->i18n;
         $i18n->translations['execut/' . $moduleName] = [
             'class' => PhpMessageSource::class,
-            'basePath' => '@vendor/' . $baseFolder . '/' . $fileName . '/messages',
+            'basePath' => $this->getMessagesFolder(),
             'sourceLanguage' => 'en-US',
             'fileMap' => [
                 'execut/' . $moduleName => $moduleName . '.php',
@@ -167,7 +163,8 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         ];
     }
 
-    protected function getModuleFolderName() {
+    protected function getModuleFolderName()
+    {
         $baseFolder = $this->vendorNamespace;
         $className = static::class;
         $reflector = new \ReflectionClass($className);
@@ -195,5 +192,29 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $className = static::class;
         $moduleName = explode('\\', $className)[1];
         return $moduleName;
+    }
+
+    /**
+     * bootstrapAliases
+     * @param \yii\console\Application $app
+     */
+    protected function bootstrapAliases($app): void
+    {
+        $aliases = [
+            '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/execut/' . $this->getModuleFolderName(),
+        ];
+        $app->setAliases($aliases);
+    }
+
+    /**
+     * getMessagesFolder
+     * @return string
+     */
+    protected function getMessagesFolder(): string
+    {
+        $baseFolder = $this->vendorNamespace;
+        $fileName = $this->getModuleFolderName();
+
+        return '@vendor/' . $baseFolder . '/' . $fileName . '/messages';
     }
 }
