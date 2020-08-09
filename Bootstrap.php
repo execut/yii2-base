@@ -170,9 +170,14 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         $reflector = new \ReflectionClass($className);
         $fileName = $reflector->getFileName();
         $level = 0;
+        $isHasSrc = false;
         while (pathinfo(dirname($fileName), PATHINFO_BASENAME) !== $baseFolder) {
             if ($level > 2) {
                 return;
+            }
+            $parts = explode('/', $fileName);
+            if ($parts[count($parts) - 1] === 'src') {
+                $isHasSrc = true;
             }
 
             $fileName = dirname($fileName);
@@ -180,6 +185,9 @@ class Bootstrap extends BaseObject implements BootstrapInterface
         }
 
         $fileName = pathinfo($fileName, PATHINFO_BASENAME);
+        if ($isHasSrc) {
+            $fileName .= '/src';
+        }
 
         return $fileName;
     }
