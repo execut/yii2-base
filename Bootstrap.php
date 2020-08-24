@@ -59,10 +59,12 @@ class Bootstrap extends BaseObject implements BootstrapInterface
      */
     public function bootstrap($app)
     {
-        $this->bootstrapAliases($app);
-        if ($this->isBootstrapI18n) {
-            $this->bootstrapI18n($app);
-        }
+        $app->on(\yii\web\Application::EVENT_BEFORE_REQUEST, function () use ($app) {
+            $this->bootstrapAliases($app);
+            if ($this->isBootstrapI18n) {
+                $this->bootstrapI18n($app);
+            }
+        });
 
         $bootstraps = [];
         foreach ($this->getDepends() as $key => $depends) {
@@ -153,9 +155,10 @@ class Bootstrap extends BaseObject implements BootstrapInterface
     {
         $moduleName = $this->getModuleName();
         $i18n = $app->i18n;
+        $messagesFolder = $this->getMessagesFolder();
         $i18n->translations['execut/' . $moduleName] = [
             'class' => PhpMessageSource::class,
-            'basePath' => $this->getMessagesFolder(),
+            'basePath' => $messagesFolder,
             'sourceLanguage' => 'en-US',
             'fileMap' => [
                 'execut/' . $moduleName => $moduleName . '.php',
