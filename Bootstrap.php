@@ -211,8 +211,9 @@ class Bootstrap extends BaseObject implements BootstrapInterface
      */
     protected function bootstrapAliases($app): void
     {
+        $baseFolder = $this->vendorNamespace;
         $aliases = [
-            '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/execut/' . $this->getModuleFolderName(),
+            '@' . $this->vendorNamespace . '/' . $this->getModuleName() => 'vendor/' . $baseFolder . '/' . $this->getModuleFolderName(),
         ];
         $app->setAliases($aliases);
     }
